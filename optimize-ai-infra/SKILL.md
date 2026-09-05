@@ -48,15 +48,16 @@ When activating proactively:
 2. Preserve the parent task and its authorization boundary. Do not silently broaden into optimization work.
 3. Capture or propose the smallest bounded evidence needed to classify the bottleneck.
 4. If the issue is non-blocking, record the finding and continue the parent task when safe.
-5. If it threatens cost, stability, memory safety, or task completion, stop before the next expensive or risky iteration, preserve available artifacts, and return an execution plan.
-6. Treat proactive entry as advice mode for an incidental finding and execution-plan mode for a material blocker or an agent handoff. Neither mode authorizes implementation.
+5. If it threatens cost, stability, memory safety, or task completion, pause the risky iteration, preserve artifacts, and diagnose. Repair within the parent task's authorization; request only missing authority for consequential additional actions.
+6. Use advice mode for incidental findings, execution-plan mode for an explicitly requested plan, and execution mode for authorized fixes. Proactive discovery alone does not expand scope.
 
 ## Route the request on two independent dimensions
 
 ### 1. Determine intent
 
 - **Advice mode**: The user asks what is wrong, what to learn, what to choose, or what optimizations to consider. Explain and recommend; do not mutate the project.
-- **Execution-plan mode**: The user asks to directly optimize, fix performance, or hand work to an AI agent. Inspect available project and runtime evidence read-only, then return an optimization framework and an executable plan. Do **not** edit code, change configuration, install packages, restart services, or run expensive benchmarks in this mode. Implementation requires a separate, explicit authorization after the plan.
+- **Execution-plan mode**: The user explicitly asks for analysis, a plan only, or a handoff for someone else. Inspect evidence read-only and deliver the requested plan; do not perform planned mutations.
+- **Execution mode**: The user asks to directly optimize or fix performance, or the parent task already authorizes the needed repair. Diagnose, implement the smallest justified change, and verify quality and end-to-end performance. Reuse existing authorization; obey host permission gates and ask only for additional consequential actions outside that scope.
 
 If intent is ambiguous, default to advice mode.
 
@@ -180,7 +181,7 @@ For non-technical users, put the plain-language explanation first and prefer mat
 
 ### Execution-plan mode
 
-Return analysis plus a plan only. Use the schema in [agent-execution-contract.md](references/agent-execution-contract.md), including phases, candidate commands, artifacts, acceptance gates, rollback, permissions, and stop conditions. Make every action traceable to a hypothesis. Do not perform the planned mutations in the same response.
+For an explicit handoff or plan-only request, return analysis and the plan schema in [agent-execution-contract.md](references/agent-execution-contract.md). For authorized execution, carry out the applicable phases and report observed results, artifacts, acceptance gates, rollback, and unresolved constraints. Make every action traceable to a hypothesis.
 
 ## Avoid common failure modes
 

@@ -12,7 +12,7 @@
 
 ## Purpose
 
-Produce an LLM-friendly, auditable handoff for an advanced infra-capable model. In execution-plan mode, analyze and plan only. Do not mutate the repository, environment, service, or external state in the same turn.
+Produce an auditable handoff or guide authorized implementation. In explicitly requested execution-plan mode, analyze and plan only. In execution mode, continue through implementation and verification within the user's authorization and host permissions.
 
 ## Planning rules
 
@@ -24,7 +24,7 @@ Produce an LLM-friendly, auditable handoff for an advanced infra-capable model. 
 - Make each optimization action depend on a hypothesis and a gate.
 - Order work from lowest-risk system changes to lower-level implementation.
 - Keep commands as candidates with working directory, permissions, expected artifacts, and timeout/cost notes.
-- Require explicit approval for installs, service restarts, long benchmarks, production traffic, destructive actions, or source changes.
+- Reuse authorization for source/config changes and necessary bounded verification. Obtain missing approval at the action boundary for additional installs, disruptive restarts, costly benchmarks, production changes, or destructive actions outside the authorized scope.
 - Define rollback before any future mutation.
 - Stop when the target passes; do not continue polishing for its own sake.
 
@@ -35,7 +35,7 @@ Use YAML when the output will be consumed directly by another model. Follow it w
 ```yaml
 performance_plan:
   version: 1
-  mode: execution-plan-only
+  mode: execution-plan-only | execution
   audience: infra-agent
   trigger:
     source: user-request | agent-observed
@@ -55,8 +55,8 @@ performance_plan:
   scope:
     in_scope: []
     out_of_scope: []
-    allowed_now: [read-only-inspection, analysis, planning]
-    prohibited_now: [source-edit, config-edit, install, restart, deployment]
+    allowed_now: [] # Populate from current user authorization and host permissions.
+    prohibited_now: [] # Plan-only requests exclude planned mutations.
   evidence:
     facts: []
     inferences: []
@@ -88,7 +88,7 @@ performance_plan:
       candidate_commands:
         - command: ""
           cwd: ""
-          permission: read-only | approval-required
+          permission: read-only | authorized-mutation | approval-required
           expected_artifact: ""
           timeout_or_cost: ""
       acceptance_gate: ""
@@ -129,7 +129,7 @@ Use this default sequence and remove irrelevant phases:
 3. **P2 — Run discriminating experiments**: one-variable tests for the top hypotheses.
 4. **P3 — Test mature system candidates**: configuration/runtime/library/compiler/batching/precision/distributed changes.
 5. **P4 — Isolate operator or kernel**: only after a material candidate survives; capture selected-kernel evidence.
-6. **P5 — Implement candidate**: future authorized turn; tests first, smallest reversible slice.
+6. **P5 — Implement candidate**: execute when already authorized; defer in plan-only mode. Preserve baseline evidence and use the smallest reversible slice.
 7. **P6 — End-to-end validate**: supported matrix, quality, tail, memory, regression, and rollback rehearsal.
 
 Execution-plan mode normally ends after specifying P0–P6; it does not execute P5.
